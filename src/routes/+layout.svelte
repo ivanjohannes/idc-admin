@@ -2,7 +2,9 @@
 	import '../app.css';
 	import favicon from '$lib/assets/favicon.svg';
 
-	let { children } = $props();
+	let { children, data } = $props();
+
+	$inspect(data.websocket_connection_info)
 </script>
 
 <svelte:head>
