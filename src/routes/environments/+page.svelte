@@ -2,8 +2,6 @@
 	let { data, form } = $props();
 
 	const environments = data?.environments || [];
-
-	$inspect(environments)
 </script>
 
 <form action="?/create" method="POST">

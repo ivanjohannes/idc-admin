@@ -4,8 +4,6 @@
 	let { data, form } = $props();
 
 	const environment = data?.environment || [];
-
-	$inspect(form);
 </script>
 
 <form action="?/update" method="POST">
