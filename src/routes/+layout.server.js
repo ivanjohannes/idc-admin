@@ -1,10 +1,9 @@
 import { task } from '$lib/server/idc';
 
-export async function load() {
+export async function load({ fetch }) {
 	const result = await task(
 		{
-			function: 'generate_websocket_connection',
-			params: {}
+			function: 'approve_websocket_connection'
 		},
 		fetch
 	);
@@ -13,7 +12,8 @@ export async function load() {
 		throw new Error('Failed to generate websocket connection');
 	}
 
-    const websocket_connection_info = result.tasks_results?.task;
+	
+	const websocket_connection_info = result.tasks_results?.task;
 
 	return { websocket_connection_info };
 }

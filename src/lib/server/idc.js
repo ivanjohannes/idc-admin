@@ -31,5 +31,6 @@ export async function task(task_definition, fetch) {
 		},
 		body: JSON.stringify({ task_definition })
 	});
+
 	return await response.json();
 }
