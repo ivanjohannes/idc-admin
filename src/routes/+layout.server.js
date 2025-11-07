@@ -3,7 +3,10 @@ import { task } from '$lib/server/idc';
 export async function load({ fetch }) {
 	const result = await task(
 		{
-			function: 'approve_websocket_connection'
+			function: 'ws_approve_connection',
+			params: {
+				namespace: "testing"
+			}
 		},
 		fetch
 	);

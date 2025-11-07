@@ -6,8 +6,12 @@
 
 	let { children, data } = $props();
 
+	let socket;
+
 	if (browser) {
 		const websocket_connection_info = data.websocket_connection_info;
+
+		console.log(websocket_connection_info)
 
 		// Connect with connection info
 		const socket = io(websocket_connection_info.url, {
@@ -18,14 +22,25 @@
 
 		socket.on('connect', () => {
 			console.log('Connected to gateway:', socket.id);
-			socket.emit('message', 'Hello from the client!');
 		});
 
-		socket.on('reply', (msg) => {
-			console.log('Received reply:', msg);
+		socket.on('pingpong', (msg) => {
+			console.log('Received from server:', msg);
+			if (msg === 'ping') {
+				socket.emit('pingpong', 'pong');
+			}
 		});
 	}
 </script>
+
+<button
+	class="fixed top-4 right-4 rounded bg-amber-600 px-4 py-2 text-white hover:bg-amber-700"
+	onclick={() => {
+		socket.emit('pingpong', 'ping');
+	}}
+>
+	ping
+</button>
 
 <svelte:head>
 	<link rel="icon" href={favicon} />
