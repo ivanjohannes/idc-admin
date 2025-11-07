@@ -11,10 +11,10 @@
 	if (browser) {
 		const websocket_connection_info = data.websocket_connection_info;
 
-		console.log(websocket_connection_info)
+		console.log(websocket_connection_info);
 
 		// Connect with connection info
-		const socket = io(websocket_connection_info.url, {
+		socket = io(websocket_connection_info.url, {
 			query: {
 				token: websocket_connection_info.token
 			}
@@ -30,6 +30,7 @@
 				socket.emit('pingpong', 'pong');
 			}
 		});
+		socket.emit('pingpong', 'ping');
 	}
 </script>
 
