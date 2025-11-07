@@ -11,26 +11,26 @@
 	if (browser) {
 		const websocket_connection_info = data.websocket_connection_info;
 
-		console.log(websocket_connection_info);
-
 		// Connect with connection info
 		socket = io(websocket_connection_info.url, {
 			query: {
+				client_id: websocket_connection_info.client_id
+			},
+			auth: {
 				token: websocket_connection_info.token
 			}
 		});
 
 		socket.on('connect', () => {
-			console.log('Connected to gateway:', socket.id);
+			console.log('Socket connected:', socket.id);
 		});
 
 		socket.on('pingpong', (msg) => {
-			console.log('Received from server:', msg);
+			console.log('Message from server:', msg);
 			if (msg === 'ping') {
 				socket.emit('pingpong', 'pong');
 			}
 		});
-		socket.emit('pingpong', 'ping');
 	}
 </script>
 
