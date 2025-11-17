@@ -4,7 +4,7 @@ import { fail } from '@sveltejs/kit';
 export async function load({ fetch }) {
 	const result = await task(
 		{
-			function: 'aggregation',
+			function: 'mongodb_aggregation',
 			params: {
 				collection_name: 'environments',
 				pipeline: [
@@ -64,7 +64,7 @@ export const actions = {
 			{
 				tasks_definitions: {
 					create_environment: {
-						function: 'create_document',
+						function: 'mongodb_create_doc',
 						if_error_message: 'Failed to create new environment',
 						params: {
 							collection_name: 'environments',

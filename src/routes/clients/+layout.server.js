@@ -5,7 +5,8 @@ export async function load({ fetch }) {
 		{
 			function: 'ws_auth_token',
 			params: {
-				namespace: "admin_dashboard"
+				rooms: ['clients'],
+				namespace: 'admin_dashboard'
 			}
 		},
 		fetch
@@ -15,7 +16,6 @@ export async function load({ fetch }) {
 		throw new Error('Failed to generate websocket connection');
 	}
 
-	
 	const websocket_connection_info = result.tasks_results?.task;
 
 	return { websocket_connection_info };

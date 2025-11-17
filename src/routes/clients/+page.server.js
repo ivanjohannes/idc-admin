@@ -4,7 +4,7 @@ import { fail } from '@sveltejs/kit';
 export async function load({ fetch }) {
 	const result = await task(
 		{
-			function: 'aggregation',
+			function: 'mongodb_aggregation',
 			params: {
 				collection_name: 'clients',
 				pipeline: [
@@ -55,7 +55,7 @@ export const actions = {
 			{
 				tasks_definitions: {
 					create_api_key_hash: {
-						function: 'string_to_hash',
+						function: 'util_string_to_hash',
 						params: {
 							unhashed_string: values.name + '-' + Date.now().toString()
 						},
@@ -63,7 +63,7 @@ export const actions = {
 						is_secret_task_definition: true
 					},
 					create_client: {
-						function: 'create_document',
+						function: 'mongodb_create_doc',
 						if_error_message: 'Failed to create new client',
 						params: {
 							collection_name: 'clients',
@@ -72,6 +72,17 @@ export const actions = {
 									name: values.name
 								},
 								api_key_hash: '{{tasks_results.create_api_key_hash.hashed_string}}'
+							}
+						}
+					},
+					emit_client_event: {
+						function: 'ws_emit_event',
+						params: {
+							namespace: 'admin_dashboard',
+							room: 'clients',
+							event: 'new_client',
+							payload: {
+								document: '[[jsonata]]tasks_results.create_client.document'
 							}
 						}
 					}

@@ -4,7 +4,7 @@ import { fail } from '@sveltejs/kit';
 export async function load({ fetch, params }) {
 	const result = await task(
 		{
-			function: 'aggregation',
+			function: 'mongodb_aggregation',
 			params: {
 				collection_name: 'environments',
 				pipeline: [
@@ -64,7 +64,7 @@ export const actions = {
 			{
 				tasks_definitions: {
 					update_environment: {
-						function: 'update_document',
+						function: 'mongodb_update_doc',
 						if_error_message: 'Failed to update environment',
 						params: {
 							idc_id: event.params.idc_id,

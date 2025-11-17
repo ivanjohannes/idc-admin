@@ -1,13 +1,29 @@
 <script>
+	import { browser } from '$app/environment';
+	import { getContext } from 'svelte';
+
 	let { data, form } = $props();
 
-	const client = data?.client || [];
+	let client = $state(data?.client);
 
 	let api_key = $state('');
+
+	const socket = getContext('socket')();
+
+	if (browser) {
+		const token = data.websocket_connection_info.token;
+
+		socket.emit('join_rooms', { token });
+
+		socket.on('client_update', (payload) => {
+			console.log(':', payload);
+			client.settings = payload.document.settings;
+		});
+	}
 </script>
 
 <form action="?/update" method="POST">
-	<div class="space-x-2 space-y-2 p-4">
+	<div class="space-y-2 space-x-2 p-4">
 		<div class="">
 			<label for="name">Client Name</label> <br />
 			<input

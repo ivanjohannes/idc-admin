@@ -2,27 +2,38 @@ import { action, task } from '$lib/server/idc';
 import { fail } from '@sveltejs/kit';
 
 export async function load({ fetch, params }) {
-	const result = await task(
+	const result = await action(
 		{
-			function: 'aggregation',
-			params: {
-				collection_name: 'clients',
-				pipeline: [
-					{
-						$match: {
-							idc_id: params.idc_id
-						}
-					},
-					{
-						$project: {
-							_id: 0,
-							idc_id: 1,
-							settings: 1,
-							createdAt: 1,
-							updatedAt: 1
-						}
+			tasks_definitions: {
+				get_clients: {
+					function: 'mongodb_aggregation',
+					params: {
+						collection_name: 'clients',
+						pipeline: [
+							{
+								$match: {
+									idc_id: params.idc_id
+								}
+							},
+							{
+								$project: {
+									_id: 0,
+									idc_id: 1,
+									settings: 1,
+									createdAt: 1,
+									updatedAt: 1
+								}
+							}
+						]
 					}
-				]
+				},
+				get_ws_token: {
+					function: 'ws_auth_token',
+					params: {
+						rooms: [params.idc_id],
+						namespace: 'admin_dashboard'
+					}
+				}
 			}
 		},
 		fetch
@@ -32,12 +43,12 @@ export async function load({ fetch, params }) {
 		throw new Error('Failed to fetch client');
 	}
 
-	const client = result.tasks_results?.task?.data[0] || null;
+	const client = result.tasks_results?.get_clients?.data[0] || null;
 
 	async function loadEnvironments() {
 		const result = await task(
 			{
-				function: 'aggregation',
+				function: 'mongodb_aggregation',
 				params: {
 					collection_name: 'environments',
 					pipeline: [
@@ -63,7 +74,9 @@ export async function load({ fetch, params }) {
 		return environments;
 	}
 
-	return { client, environments: loadEnvironments() };
+	const websocket_connection_info = result.tasks_results?.get_ws_token;
+
+	return { client, environments: loadEnvironments(), websocket_connection_info };
 }
 
 export const actions = {
@@ -100,7 +113,7 @@ export const actions = {
 			{
 				tasks_definitions: {
 					duplicate_client_id_lookup: {
-						function: 'aggregation',
+						function: 'mongodb_aggregation',
 						if_error_message: 'Failed to validate client ID',
 						params: {
 							collection_name: 'clients',
@@ -118,7 +131,7 @@ export const actions = {
 						}
 					},
 					duplicate_error: {
-						function: 'error',
+						function: 'sys_error',
 						conditions: [
 							{
 								expression: '[[jsonata]]$count(tasks_results.duplicate_client_id_lookup.data) > 0'
@@ -127,7 +140,7 @@ export const actions = {
 						if_error_message: 'Client ID already in use'
 					},
 					update_client: {
-						function: 'update_document',
+						function: 'mongodb_update_doc',
 						if_error_message: 'Failed to update client',
 						params: {
 							idc_id: event.params.idc_id,
@@ -142,8 +155,20 @@ export const actions = {
 							]
 						}
 					},
+					emit_update_event: {
+						function: 'ws_emit_event',
+						if_error_message: 'Failed to emit websocket event',
+						params: {
+							namespace: 'admin_dashboard',
+							room: event.params.idc_id,
+							event: 'client_update',
+							payload: {
+								document: '[[jsonata]]tasks_results.update_client.document'
+							}
+						}
+					},
 					generate_api_key_hash: {
-						function: 'string_to_hash',
+						function: 'util_string_to_hash',
 						params: {
 							unhashed_string: api_key
 						},
@@ -156,7 +181,7 @@ export const actions = {
 						is_secret_task_results: true
 					},
 					update_api_key: {
-						function: 'update_document',
+						function: 'mongodb_update_doc',
 						if_error_message: 'Failed to update API key',
 						params: {
 							idc_id: event.params.idc_id,
@@ -189,7 +214,8 @@ export const actions = {
 		}
 
 		return {
-			result
+			result,
+			values
 		};
 	}
 };

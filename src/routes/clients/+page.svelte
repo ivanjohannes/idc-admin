@@ -1,11 +1,28 @@
 <script>
+	import { browser } from '$app/environment';
+	import { getContext } from 'svelte';
+	import { enhance } from '$app/forms';
+
 	let { data, form } = $props();
 
-	const clients = data?.clients || [];
+	let clients = $state(data?.clients || []);
+
+	const socket = getContext('socket')();
+
+	if (browser) {
+		const token = data.websocket_connection_info.token;
+
+		socket.emit('join_rooms', { token });
+
+		socket.on('new_client', (payload) => {
+			console.log('New client received via websocket:', payload);
+			clients.unshift(payload.document);
+		});
+	}
 </script>
 
-<form action="?/create" method="POST">
-	<div class="space-x-2 space-y-2 p-4">
+<form action="?/create" method="POST" use:enhance>
+	<div class="space-y-2 space-x-2 p-4">
 		<div class="">
 			<label for="name">Client Name</label> <br />
 			<input type="text" name="name" placeholder="Client Name" value={form?.values?.name} />
@@ -20,7 +37,7 @@
 </form>
 
 <div class="space-y-2 p-4">
-	{#each clients as client}
+	{#each clients as client (client.idc_id)}
 		<div class="client-card rounded border border-slate-200 p-2">
 			<a href="/clients/{client.idc_id}">
 				<p>Client Name: {client.settings?.name}</p>

@@ -3,10 +3,13 @@
 	import favicon from '$lib/assets/favicon.svg';
 	import { browser } from '$app/environment';
 	import { io } from 'socket.io-client';
+	import { setContext } from 'svelte';
 
 	let { children, data } = $props();
 
-	let socket;
+	let socket = $state();
+
+	setContext('socket', () => socket);
 
 	if (browser) {
 		const websocket_connection_info = data.websocket_connection_info;
