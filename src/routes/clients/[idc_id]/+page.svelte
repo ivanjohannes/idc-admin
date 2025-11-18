@@ -11,12 +11,11 @@
 	const socket = getContext('socket')();
 
 	if (browser) {
-		const token = data.websocket_connection_info.token;
+		const token = data.ws_page_settings.auth_token;
 
 		socket.emit('join_rooms', { token });
 
 		socket.on('client_update', (payload) => {
-			console.log(':', payload);
 			client.settings = payload.document.settings;
 		});
 	}

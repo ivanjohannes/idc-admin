@@ -1,6 +1,6 @@
 <script>
 	import { browser } from '$app/environment';
-	import { getContext } from 'svelte';
+	import { getContext, onDestroy } from 'svelte';
 	import { enhance } from '$app/forms';
 
 	let { data, form } = $props();
@@ -10,15 +10,20 @@
 	const socket = getContext('socket')();
 
 	if (browser) {
-		const token = data.websocket_connection_info.token;
+		const token = data.ws_page_settings.auth_token;
 
 		socket.emit('join_rooms', { token });
 
 		socket.on('new_client', (payload) => {
-			console.log('New client received via websocket:', payload);
 			clients.unshift(payload.document);
 		});
 	}
+
+	onDestroy(() => {
+		if (browser) {
+			socket.emit('leave_rooms', { rooms: ['clients'] });
+		}
+	});
 </script>
 
 <form action="?/create" method="POST" use:enhance>

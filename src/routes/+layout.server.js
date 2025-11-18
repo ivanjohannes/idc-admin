@@ -1,11 +1,23 @@
-import { task } from '$lib/server/idc';
+import { action } from '$lib/server/idc';
 
 export async function load({ fetch }) {
-	const result = await task(
+	const result = await action(
 		{
-			function: 'ws_auth_token',
-			params: {
-				namespace: "admin_dashboard"
+			tasks_definitions: {
+				get_namespace_settings: {
+					function: 'ws_prep_namespace',
+					params: {
+						namespace: 'admin_dashboard'
+					}
+				},
+				get_ws_auth_token: {
+					function: 'util_jwt',
+					params: {
+						payload: {
+							namespace: 'admin_dashboard'
+						}
+					}
+				}
 			}
 		},
 		fetch
@@ -15,8 +27,11 @@ export async function load({ fetch }) {
 		throw new Error('Failed to generate websocket connection');
 	}
 
-	
-	const websocket_connection_info = result.tasks_results?.task;
+	const ws_namespace_settings = {
+		url: result.tasks_results?.get_namespace_settings.url,
+		client_id: result.tasks_results?.get_namespace_settings.client_id,
+		auth_token: result.tasks_results?.get_ws_auth_token.token
+	}
 
-	return { websocket_connection_info };
+	return { ws_namespace_settings };
 }

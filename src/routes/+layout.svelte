@@ -12,15 +12,13 @@
 	setContext('socket', () => socket);
 
 	if (browser) {
-		const websocket_connection_info = data.websocket_connection_info;
-
 		// Connect with connection info
-		socket = io(websocket_connection_info.url, {
+		socket = io(data.ws_namespace_settings.url, {
 			query: {
-				client_id: websocket_connection_info.client_id
+				client_id: data.ws_namespace_settings.client_id
 			},
 			auth: {
-				token: websocket_connection_info.token
+				token: data.ws_namespace_settings.auth_token
 			}
 		});
 

@@ -1,28 +1,41 @@
-import { action, task } from '$lib/server/idc';
+import { action } from '$lib/server/idc';
 import { fail } from '@sveltejs/kit';
 
 export async function load({ fetch }) {
-	const result = await task(
+	const result = await action(
 		{
-			function: 'mongodb_aggregation',
-			params: {
-				collection_name: 'clients',
-				pipeline: [
-					{
-						$project: {
-							_id: 0,
-							idc_id: 1,
-							settings: 1,
-							createdAt: 1,
-							updatedAt: 1
-						}
-					},
-					{
-						$sort: {
-							updatedAt: -1
+			tasks_definitions: {
+				get_clients: {
+					function: 'mongodb_aggregation',
+					params: {
+						collection_name: 'clients',
+						pipeline: [
+							{
+								$project: {
+									_id: 0,
+									idc_id: 1,
+									settings: 1,
+									createdAt: 1,
+									updatedAt: 1
+								}
+							},
+							{
+								$sort: {
+									updatedAt: -1
+								}
+							}
+						]
+					}
+				},
+				get_ws_auth_token: {
+					function: 'util_jwt',
+					params: {
+						payload: {
+							namespace: 'admin_dashboard',
+							rooms: ['clients']
 						}
 					}
-				]
+				}
 			}
 		},
 		fetch
@@ -32,9 +45,13 @@ export async function load({ fetch }) {
 		throw new Error('Failed to fetch clients');
 	}
 
-	const clients = result.tasks_results?.task?.data || [];
+	const clients = result.tasks_results?.get_clients?.data || [];
 
-	return { clients };
+	const ws_page_settings = {
+		auth_token: result.tasks_results?.get_ws_auth_token.token
+	};
+
+	return { clients, ws_page_settings };
 }
 
 export const actions = {

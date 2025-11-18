@@ -5,7 +5,7 @@ export async function load({ fetch, params }) {
 	const result = await action(
 		{
 			tasks_definitions: {
-				get_clients: {
+				get_client: {
 					function: 'mongodb_aggregation',
 					params: {
 						collection_name: 'clients',
@@ -27,11 +27,13 @@ export async function load({ fetch, params }) {
 						]
 					}
 				},
-				get_ws_token: {
-					function: 'ws_auth_token',
+				get_ws_auth_token: {
+					function: 'util_jwt',
 					params: {
-						rooms: [params.idc_id],
-						namespace: 'admin_dashboard'
+						payload: {
+							namespace: 'admin_dashboard',
+							rooms: [params.idc_id]
+						}
 					}
 				}
 			}
@@ -43,7 +45,7 @@ export async function load({ fetch, params }) {
 		throw new Error('Failed to fetch client');
 	}
 
-	const client = result.tasks_results?.get_clients?.data[0] || null;
+	const client = result.tasks_results?.get_client?.data[0] || null;
 
 	async function loadEnvironments() {
 		const result = await task(
@@ -74,9 +76,11 @@ export async function load({ fetch, params }) {
 		return environments;
 	}
 
-	const websocket_connection_info = result.tasks_results?.get_ws_token;
+	const ws_page_settings = {
+		auth_token: result.tasks_results?.get_ws_auth_token.token
+	};
 
-	return { client, environments: loadEnvironments(), websocket_connection_info };
+	return { client, environments: loadEnvironments(), ws_page_settings };
 }
 
 export const actions = {
