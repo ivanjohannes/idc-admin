@@ -26,6 +26,10 @@
 			console.log('Socket connected:', socket.id);
 		});
 
+		socket.on('connect_error', (err) => {
+			console.error('Socket connection error:', err.message);
+		});
+
 		socket.on('pingpong', (msg) => {
 			console.log('Message from server:', msg);
 			if (msg === 'ping') {
