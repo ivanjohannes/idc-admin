@@ -181,7 +181,6 @@ export const actions = {
 								expression: api_key
 							}
 						],
-						is_secret_task_definition: true,
 						is_secret_task_results: true
 					},
 					update_api_key: {
@@ -202,7 +201,6 @@ export const actions = {
 								expression: api_key
 							}
 						],
-						is_secret_task_definition: true,
 						is_secret_task_results: true
 					}
 				}

@@ -76,8 +76,7 @@ export const actions = {
 						params: {
 							unhashed_string: values.name + '-' + Date.now().toString()
 						},
-						if_error_message: 'Failed to generate API key hash',
-						is_secret_task_definition: true
+						if_error_message: 'Failed to generate API key hash'
 					},
 					create_client: {
 						function: 'mongodb_create_doc',
