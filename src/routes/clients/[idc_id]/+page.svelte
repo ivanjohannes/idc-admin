@@ -68,7 +68,7 @@
 			<button
 				class="rounded border border-amber-600 bg-amber-600 p-2 text-white"
 				type="button"
-				onclick={() => (api_key = crypto.randomUUID())}
+				onclick={() => api_key = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)}
 			>
 				Generate New Key
 			</button>

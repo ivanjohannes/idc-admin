@@ -1,7 +1,5 @@
 import config from './config';
 
-console.log(config)
-
 /**
  * @description Sends an action definition to the IDC API.
  * @param {*} action_definition
