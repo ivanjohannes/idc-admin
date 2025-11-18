@@ -11,7 +11,7 @@
 
 	setContext('socket', () => socket);
 
-	if (browser) {
+	if (browser && data.ws_namespace_settings) {
 		// Connect with connection info
 		socket = io(data.ws_namespace_settings.url, {
 			query: {

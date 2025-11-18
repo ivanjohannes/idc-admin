@@ -9,7 +9,7 @@
 
 	const socket = getContext('socket')();
 
-	if (browser) {
+	if (browser && data.ws_page_settings) {
 		const token = data.ws_page_settings.auth_token;
 
 		socket.emit('join_rooms', { token });

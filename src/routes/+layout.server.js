@@ -23,14 +23,13 @@ export async function load({ fetch }) {
 		fetch
 	);
 
-	if (!result?.action_metrics?.is_success) {
-		throw new Error('Failed to generate websocket connection');
-	}
-
-	const ws_namespace_settings = {
-		url: result.tasks_results?.get_namespace_settings.url,
-		client_id: result.tasks_results?.get_namespace_settings.client_id,
-		auth_token: result.tasks_results?.get_ws_auth_token.token
+	let ws_namespace_settings;
+	if (result?.action_metrics?.is_success) {
+		ws_namespace_settings = {
+			url: result.tasks_results?.get_namespace_settings.url,
+			client_id: result.tasks_results?.get_namespace_settings.client_id,
+			auth_token: result.tasks_results?.get_ws_auth_token.token
+		};
 	}
 
 	return { ws_namespace_settings };

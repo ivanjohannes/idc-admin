@@ -41,17 +41,17 @@ export async function load({ fetch }) {
 		fetch
 	);
 
-	if (!result?.action_metrics?.is_success) {
-		throw new Error('Failed to fetch clients');
+	const _result = {};
+
+	if (result?.action_metrics?.is_success) {
+		_result.clients = result.tasks_results?.get_clients?.data || [];
+
+		_result.ws_page_settings = {
+			auth_token: result.tasks_results?.get_ws_auth_token.token
+		};
 	}
 
-	const clients = result.tasks_results?.get_clients?.data || [];
-
-	const ws_page_settings = {
-		auth_token: result.tasks_results?.get_ws_auth_token.token
-	};
-
-	return { clients, ws_page_settings };
+	return _result;
 }
 
 export const actions = {
