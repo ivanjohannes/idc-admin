@@ -1,4 +1,4 @@
-import { action, task } from '$lib/server/idc';
+import { action } from '$lib/server/idc';
 import { fail } from '@sveltejs/kit';
 
 export async function load({ fetch, params }) {
@@ -48,20 +48,24 @@ export async function load({ fetch, params }) {
 	const client = result.tasks_results?.get_client?.data[0] || null;
 
 	async function loadEnvironments() {
-		const result = await task(
+		const result = await action(
 			{
-				function: 'mongodb_aggregation',
-				params: {
-					collection_name: 'environments',
-					pipeline: [
-						{
-							$project: {
-								_id: 0,
-								idc_id: 1,
-								name: '$settings.name'
-							}
+				tasks_definitions: {
+					task: {
+						function: 'mongodb_aggregation',
+						params: {
+							collection_name: 'environments',
+							pipeline: [
+								{
+									$project: {
+										_id: 0,
+										idc_id: 1,
+										name: '$settings.name'
+									}
+								}
+							]
 						}
-					]
+					}
 				}
 			},
 			fetch
